@@ -1,0 +1,112 @@
+[
+  {
+    "_id": {
+      "$oid": "6a163671ab2dc2068fdcfc16"
+    },
+    "nome": "Gabriel Oliveira",
+    "idade": 15,
+    "ultimaLocalidade": "Terminal Rodovi\u00e1rio do Tiet\u00ea ",
+    "fotoPerfil": "https://jyniwzvaujyguilafunt.supabase.co/storage/v1/object/public/postagens/1779840573035.jpeg",
+    "informacoesAdicionais": "Estava com bon\u00e9 vermelho e jaqueta cinza",
+    "data": {
+      "$date": "2026-04-19T00:00:00Z"
+    },
+    "status": "Aprovada",
+    "usuarioPostagem": {
+      "_id": {
+        "$oid": "6a05e835ec7da434cf3efc78"
+      },
+      "nome": "joao3",
+      "email": "joao3@email.com"
+    },
+    "_class": "com.Cra.ChildRescueAlert.models.Postagem"
+  },
+  {
+    "_id": {
+      "$oid": "6a163797ab2dc2068fdcfc17"
+    },
+    "nome": "Mariana Souza",
+    "idade": 12,
+    "ultimaLocalidade": "Shopping Tatuap\u00e9 ",
+    "fotoPerfil": "https://jyniwzvaujyguilafunt.supabase.co/storage/v1/object/public/postagens/1779840881569.png",
+    "informacoesAdicionais": "Cabelos cacheados e vestido amarelo",
+    "data": {
+      "$date": "2026-05-21T00:00:00Z"
+    },
+    "status": "Aprovada",
+    "usuarioPostagem": {
+      "_id": {
+        "$oid": "6a05f44a5092d2032da76c67"
+      },
+      "nome": "joao",
+      "email": "joao@email.com"
+    },
+    "_class": "com.Cra.ChildRescueAlert.models.Postagem"
+  },
+  {
+    "_id": {
+      "$oid": "6a163923ab2dc2068fdcfc18"
+    },
+    "nome": "Jo\u00e3o Souza",
+    "idade": 16,
+    "ultimaLocalidade": "Rua Espanha",
+    "fotoPerfil": "https://jyniwzvaujyguilafunt.supabase.co/storage/v1/object/public/postagens/1779841282613.png",
+    "informacoesAdicionais": "Estava com um gorro e roupas escuras",
+    "data": {
+      "$date": "2026-05-21T00:00:00Z"
+    },
+    "status": "Aprovada",
+    "usuarioPostagem": {
+      "_id": {
+        "$oid": "6a05e835ec7da434cf3efc78"
+      },
+      "nome": "joao3",
+      "email": "joao3@email.com"
+    },
+    "_class": "com.Cra.ChildRescueAlert.models.Postagem"
+  },
+  {
+    "_id": {
+      "$oid": "6adbd6a57424ba088ab416da"
+    },
+    "nome": "Teste CEP Crian\u00e7a",
+    "idade": 8,
+    "ultimaLocalidade": "Av. Paulista, 1000 - Bela Vista, S\u00e3o Paulo - SP",
+    "fotoPerfil": "https://example.com/foto.jpg",
+    "informacoesAdicionais": "Teste com campo CEP",
+    "data": {
+      "$date": "2026-10-20T00:00:00Z"
+    },
+    "status": "N\u00e3o encontrado",
+    "usuarioPostagem": {
+      "_id": {
+        "$oid": "6adbd0bd7424ba088ab416d7"
+      },
+      "nome": "pedroteste123",
+      "email": "pedroteste123@example.com"
+    },
+    "_class": "com.Cra.ChildRescueAlert.models.Postagem"
+  },
+  {
+    "_id": {
+      "$oid": "6adbd8d17424ba088ab416db"
+    },
+    "nome": "Bobo espo",
+    "idade": 12,
+    "ultimaLocalidade": "Rua Doutor Carlos de Rezende Enout, Parque Doroteia, S\u00e3o Paulo - SP",
+    "fotoPerfil": "https://jyniwzvaujyguilafunt.supabase.co/storage/v1/object/public/postagens/1792792738085.jpeg",
+    "informacoesAdicionais": "estava na frente da escola padre paquale ",
+    "data": {
+      "$date": "2026-10-23T00:00:00Z"
+    },
+    "status": "Aprovada",
+    "usuarioPostagem": {
+      "_id": {
+        "$oid": "6adbd2287424ba088ab416d9"
+      },
+      "nome": "pedro123",
+      "email": "pedroguerdis@gmail.com"
+    },
+    "_class": "com.Cra.ChildRescueAlert.models.Postagem"
+  }
+]

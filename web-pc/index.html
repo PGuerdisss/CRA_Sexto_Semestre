@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRA Desktop — Child Rescue Alert (Sincronizado com Mobile)</title>
+    <!-- Fontes oficiais do projeto CRA -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Public+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Leaflet CSS para Mapa Interativo no PC -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <!-- BARRA LATERAL DESKTOP -->
+      <aside class="sidebar">
+        <div>
+          <div class="brand-box">
+            <div class="brand-logo-circle">CRA</div>
+            <div>
+              <div class="brand-title">CHILD RESCUE ALERT</div>
+              <div class="brand-subtitle">Versão Desktop PC • Sincronizada</div>
+            </div>
+          </div>
+
+          <nav class="nav-menu">
+            <button
+              class="nav-item active"
+              id="nav-feed"
+              onclick="switchTab('feed')"
+            >
+              <span>📢</span>
+              <span>Feed de Alertas</span>
+            </button>
+
+            <button
+              class="nav-item"
+              id="nav-map"
+              onclick="switchTab('map')"
+            >
+              <span>🗺️</span>
+              <span>Mapa de Casos</span>
+            </button>
+
+            <button
+              class="nav-item"
+              id="nav-report"
+              onclick="switchTab('report')"
+            >
+              <span>🚨</span>
+              <span>Reportar Desaparecimento</span>
+            </button>
+
+            <button
+              class="nav-item"
+              id="nav-profile"
+              onclick="switchTab('profile')"
+            >
+              <span>👤</span>
+              <span>Meu Perfil & Auxílio B.O.</span>
+            </button>
+
+            <button
+              class="nav-item"
+              id="nav-admin"
+              style="display: none"
+              onclick="openNotificationsModal()"
+            >
+              <span>🛡️</span>
+              <span>Central de Moderação</span>
+              <span class="badge" id="sidebar-admin-badge" style="display: none"
+                >0</span
+              >
+            </button>
+          </nav>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="sync-status-pill">
+            <span class="sync-dot"></span>
+            <span>Conectado ao Mobile em Tempo Real</span>
+          </div>
+
+          <div class="user-mini-card">
+            <div class="user-mini-avatar" id="sidebar-user-avatar">V</div>
+            <div class="user-mini-info">
+              <div class="user-mini-name" id="sidebar-user-name">
+                Visitante
+              </div>
+              <div class="user-mini-role" id="sidebar-user-role">
+                Modo Leitura Pública
+              </div>
+            </div>
+          </div>
+
+          <button
+            class="btn btn-primary"
+            id="sidebar-auth-btn"
+            onclick="openAuthModal('login')"
+            style="width: 100%"
+          >
+            Entrar / Cadastrar
+          </button>
+        </div>
+      </aside>
+
+      <!-- ÁREA PRINCIPAL DO PC -->
+      <main class="main-area">
+        <!-- TOPBAR -->
+        <header class="topbar">
+          <div class="topbar-left">
+            <div>
+              <div class="page-title" id="topbar-title">
+                Alertas Ativos na Comunidade
+              </div>
+            </div>
+          </div>
+
+          <div class="topbar-right">
+            <button
+              class="btn btn-primary"
+              onclick="switchTab('report')"
+            >
+              + Novo Alerta
+            </button>
+
+            <button
+              class="bell-btn"
+              onclick="openNotificationsModal()"
+              title="Central de Notificações e Moderação"
+            >
+              🔔
+              <span
+                class="bell-badge"
+                id="topbar-bell-badge"
+                style="display: none"
+                >0</span
+              >
+            </button>
+          </div>
+        </header>
+
+        <!-- VIEWPORT DE CONTEÚDO -->
+        <div class="content-viewport">
+          <!-- ABA 1: FEED DE POSTAGENS -->
+          <section class="tab-panel active" id="tab-feed">
+            <div class="feed-toolbar">
+              <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input
+                  type="text"
+                  id="feed-search-input"
+                  placeholder="Buscar por nome da pessoa desaparecida ou localidade..."
+                  oninput="renderFeed()"
+                />
+              </div>
+
+              <div
+                id="admin-filter-group"
+                style="display: none; gap: 8px; align-items: center"
+              >
+                <span style="font-size: 12px; font-weight: 700; color: #475569"
+                  >Filtro Admin:</span
+                >
+                <button
+                  class="radius-chip active"
+                  id="filter-all"
+                  onclick="setAdminStatusFilter('ALL')"
+                >
+                  Todas
+                </button>
+                <button
+                  class="radius-chip"
+                  id="filter-aprovada"
+                  onclick="setAdminStatusFilter('Aprovada')"
+                >
+                  Aprovadas
+                </button>
+                <button
+                  class="radius-chip"
+                  id="filter-pendente"
+                  onclick="setAdminStatusFilter('Pendente')"
+                >
+                  Pendentes
+                </button>
+              </div>
+            </div>
+
+            <div id="feed-container">
+              <div class="empty-state-box">
+                <h3>Carregando alertas...</h3>
+                <p style="color: #64748b; margin-top: 6px">
+                  Sincronizando com o banco de dados do CRA...
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ABA 2: MAPA INTERATIVO DESKTOP -->
+          <section class="tab-panel" id="tab-map">
+            <div class="map-wrapper">
+              <div class="map-Controls-bar">
+                <div
+                  style="display: flex; align-items: center; gap: 10px; flex: 1"
+                >
+                  <input
+                    type="text"
+                    id="map-search-input"
+                    placeholder="Pesquisar cidade, bairro ou rua no mapa..."
+                    style="
+                      padding: 9px 14px;
+                      border-radius: 10px;
+                      border: 1px solid #e2e8f0;
+                      width: 300px;
+                      font-size: 13px;
+                    "
+                    onkeydown="if(event.key==='Enter') searchLocationOnMap()"
+                  />
+                  <button
+                    class="btn btn-primary"
+                    onclick="searchLocationOnMap()"
+                  >
+                    Buscar Local
+                  </button>
+                  <button
+                    class="btn btn-outline"
+                    onclick="centerMapOnUserGPS()"
+                  >
+                    📍 Minha Localização
+                  </button>
+                </div>
+
+                <div class="radius-pills">
+                  <span
+                    style="font-size: 12px; font-weight: 700; color: #475569"
+                    >Raio:</span
+                  >
+                  <button
+                    class="radius-chip active"
+                    data-radius="0"
+                    onclick="setMapRadius(0)"
+                  >
+                    Todos
+                  </button>
+                  <button
+                    class="radius-chip"
+                    data-radius="5"
+                    onclick="setMapRadius(5)"
+                  >
+                    5 km
+                  </button>
+                  <button
+                    class="radius-chip"
+                    data-radius="10"
+                    onclick="setMapRadius(10)"
+                  >
+                    10 km
+                  </button>
+                  <button
+                    class="radius-chip"
+                    data-radius="25"
+                    onclick="setMapRadius(25)"
+                  >
+                    25 km
+                  </button>
+                  <button
+                    class="radius-chip"
+                    data-radius="50"
+                    onclick="setMapRadius(50)"
+                  >
+                    50 km
+                  </button>
+                </div>
+              </div>
+
+              <div id="desktop-map"></div>
+            </div>
+          </section>
+
+          <!-- ABA 3: REPORTAR DESAPARECIMENTO -->
+          <section class="tab-panel" id="tab-report">
+            <!-- Aviso para Visitante (Desconectado) -->
+            <div
+              class="form-card"
+              id="report-guest-warning"
+              style="
+                max-width: 560px;
+                text-align: center;
+                padding: 46px 32px;
+                display: none;
+              "
+            >
+              <div
+                style="
+                  width: 84px;
+                  height: 84px;
+                  border-radius: 50%;
+                  background: #eef4ff;
+                  border: 1.5px solid #bfdbfe;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-size: 38px;
+                  margin: 0 auto 20px;
+                "
+              >
+                🔒
+              </div>
+              <h2 style="font-size: 23px; color: #0f172a; margin-bottom: 10px">
+                Identificação Necessária
+              </h2>
+              <p
+                style="
+                  font-size: 15px;
+                  color: #64748b;
+                  line-height: 1.6;
+                  margin-bottom: 26px;
+                "
+              >
+                Só é possível cadastrar um alerta de desaparecimento caso você
+                esteja conectado à sua conta. Isso garante a autenticidade e a
+                segurança de cada caso reportado.
+              </p>
+
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  gap: 12px;
+                  max-width: 340px;
+                  margin: 0 auto 24px;
+                "
+              >
+                <button
+                  class="btn btn-primary"
+                  style="padding: 13px 20px; font-size: 15px"
+                  onclick="openAuthModal('login')"
+                >
+                  🔑 Conectar / Entrar
+                </button>
+                <button
+                  class="btn btn-outline"
+                  style="padding: 13px 20px; font-size: 15px"
+                  onclick="openAuthModal('register')"
+                >
+                  👤 Criar nova conta
+                </button>
+              </div>
+
+              <div
+                style="
+                  background: #f8fafc;
+                  border: 1px solid #e2e8f0;
+                  border-radius: 12px;
+                  padding: 14px 18px;
+                  font-size: 13px;
+                  color: #475569;
+                "
+              >
+                🛡️ O CRA protege seus dados cadastrais e as informações das
+                postagens sob análise oficial.
+              </div>
+            </div>
+
+            <!-- Formulário (Visível apenas para Usuário Conectado) -->
+            <div class="form-card" id="report-form-wrapper">
+              <h2 style="font-size: 22px; color: #0f172a">
+                Reportar Desaparecimento
+              </h2>
+              <p style="font-size: 14px; color: #64748b; margin-top: 4px">
+                Preencha os dados abaixo. Após o envio, o caso passará pela
+                autorização da equipe de moderação.
+              </p>
+
+              <form id="report-form" onsubmit="submitReportForm(event)">
+                <div class="form-grid">
+                  <div class="form-group full">
+                    <label>Fotografia Recente da Pessoa Desaparecida *</label>
+                    <div
+                      class="photo-upload-box"
+                      onclick="document.getElementById('report-photo-input').click()"
+                    >
+                      <input
+                        type="file"
+                        id="report-photo-input"
+                        accept="image/*"
+                        style="display: none"
+                        onchange="handlePhotoSelected(event)"
+                      />
+                      <div id="photo-upload-placeholder">
+                        <div style="font-size: 28px; margin-bottom: 6px">
+                          📷
+                        </div>
+                        <div style="font-weight: 700; color: #0040a1">
+                          Clique para selecionar uma foto do seu computador
+                        </div>
+                        <div
+                          style="
+                            font-size: 12px;
+                            color: #64748b;
+                            margin-top: 4px;
+                          "
+                        >
+                          A imagem é otimizada automaticamente para aparecer no
+                          PC e no Celular
+                        </div>
+                      </div>
+                      <img
+                        id="report-photo-preview"
+                        class="photo-preview-img"
+                        style="display: none"
+                        alt="Prévia da foto"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Nome Completo do Desaparecido *</label>
+                    <input
+                      type="text"
+                      id="report-nome"
+                      required
+                      placeholder="Ex: Lucas Gabriel Souza"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label>Idade (Anos) *</label>
+                    <input
+                      type="number"
+                      id="report-idade"
+                      required
+                      min="0"
+                      max="120"
+                      placeholder="Ex: 10"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label>CEP do Último Local Visto (Busca Automática)</label>
+                    <input
+                      type="text"
+                      id="report-cep"
+                      placeholder="Ex: 01310-100"
+                      maxlength="9"
+                      onblur="buscarCepAutomatico()"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label>Data do Desaparecimento *</label>
+                    <input
+                      type="text"
+                      id="report-data"
+                      required
+                      placeholder="DD/MM/AAAA"
+                    />
+                  </div>
+
+                  <div class="form-group full">
+                    <label>Última Localidade Vista (Rua, Bairro, Cidade - UF) *</label>
+                    <input
+                      type="text"
+                      id="report-localidade"
+                      required
+                      placeholder="Ex: Av. Paulista, Bela Vista, São Paulo - SP"
+                    />
+                  </div>
+
+                  <div class="form-group full">
+                    <label>
+                      Informações Adicionais (Roupas, Características, Contato)
+                      *
+                    </label>
+                    <textarea
+                      id="report-info"
+                      rows="4"
+                      required
+                      placeholder="Descreva as roupas que vestia, horário aproximado, características físicas e informações importantes para ajudar nas buscas..."
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div
+                  style="
+                    margin-top: 22px;
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 12px;
+                  "
+                >
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="report-submit-btn"
+                    style="padding: 12px 24px; font-size: 14px"
+                  >
+                    📤 Enviar Alerta de Desaparecimento
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <!-- ABA 4: MEU PERFIL + AUXÍLIO BOLETIM DE OCORRÊNCIA E DELEGACIA PRÓXIMA -->
+          <section class="tab-panel" id="tab-profile">
+            <div class="profile-layout">
+              <!-- Card Principal de Perfil -->
+              <div class="profile-hero">
+                <div class="profile-hero-left">
+                  <div class="profile-big-avatar" id="profile-avatar-letter">
+                    V
+                  </div>
+                  <div>
+                    <h2 id="profile-name" style="font-size: 24px">
+                      Navegando como Visitante
+                    </h2>
+                    <p
+                      id="profile-email"
+                      style="color: #cbd5e1; font-size: 14px; margin-top: 4px"
+                    >
+                      Faça login ou crie uma conta para publicar alertas e
+                      acessar todos os recursos.
+                    </p>
+                    <div
+                      id="profile-role-badge"
+                      style="
+                        display: inline-block;
+                        margin-top: 10px;
+                        padding: 4px 12px;
+                        border-radius: 14px;
+                        background: rgba(59, 130, 246, 0.25);
+                        border: 1px solid rgba(147, 197, 253, 0.4);
+                        font-size: 12px;
+                        font-weight: 700;
+                        color: #dbeafe;
+                      "
+                    >
+                      Modo Visitante
+                    </div>
+                  </div>
+                </div>
+
+                <div id="profile-auth-actions">
+                  <button
+                    class="btn btn-primary"
+                    onclick="openAuthModal('login')"
+                  >
+                    Conectar / Criar Conta
+                  </button>
+                </div>
+              </div>
+
+              <!-- PAINEL EXCLUSIVO PARA USUÁRIO CADASTRADO (NÃO ADMIN): AUXÍLIO B.O. E DELEGACIA PRÓXIMA -->
+              <div
+                class="bo-support-panel"
+                id="profile-bo-assistant"
+                style="display: none"
+              >
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 12px;
+                  "
+                >
+                  <div>
+                    <span
+                      style="
+                        font-size: 11px;
+                        font-weight: 800;
+                        color: #0040a1;
+                        letter-spacing: 0.8px;
+                        text-transform: uppercase;
+                      "
+                      >AUXÍLIO EXCLUSIVO AO CIDADÃO CADASTRADO</span
+                    >
+                    <h3 style="font-size: 20px; color: #0f172a; margin-top: 2px">
+                      🚓 Auxílio para Boletim de Ocorrência e Delegacia Mais
+                      Próxima
+                    </h3>
+                  </div>
+
+                  <div style="display: flex; gap: 10px; flex-wrap: wrap">
+                    <button
+                      class="btn btn-primary"
+                      onclick="locateNearbyPoliceStationsPC()"
+                    >
+                      📍 Localizar Delegacias Próximas de Mim (GPS)
+                    </button>
+                    <button
+                      class="btn btn-outline"
+                      onclick="openGoogleMapsPoliceSearchPC()"
+                    >
+                      🗺️ Abrir Delegacias no Google Maps
+                    </button>
+                  </div>
+                </div>
+
+                <div class="law-banner">
+                  ⚖️ <strong>Lei da Busca Imediata (Lei Federal nº 11.259/2005 e ECA):</strong>
+                  NÃO é necessário aguardar 24h ou 48h para comunicar um
+                  desaparecimento! O registro do Boletim de Ocorrência e o
+                  início das buscas devem ser feitos
+                  <strong>imediatamente</strong> em qualquer Delegacia de
+                  Polícia Civil.
+                </div>
+
+                <!-- Resultado da Busca de Delegacias Próximas no PC -->
+                <div
+                  id="pc-delegacias-result"
+                  style="margin-top: 14px; margin-bottom: 18px"
+                ></div>
+
+                <h4
+                  style="
+                    font-size: 13px;
+                    color: #475569;
+                    text-transform: uppercase;
+                    letter-spacing: 0.6px;
+                    margin-top: 10px;
+                  "
+                >
+                  Passo a Passo Correto para Efetuar o Boletim de Ocorrência:
+                </h4>
+
+                <div class="steps-list">
+                  <div class="step-box">
+                    <div class="step-num">1</div>
+                    <h4 style="font-size: 14px; margin-bottom: 6px">
+                      Aja Imediatamente (Sem esperar 24h)
+                    </h4>
+                    <p style="font-size: 13px; color: #475569; line-height: 1.5">
+                      Assim que constatar o desaparecimento, dirija-se à
+                      delegacia mais próxima ou acione o 190. A lei garante a
+                      busca imediata.
+                    </p>
+                  </div>
+
+                  <div class="step-box">
+                    <div class="step-num">2</div>
+                    <h4 style="font-size: 14px; margin-bottom: 6px">
+                      Separe Documentos e Foto Recente
+                    </h4>
+                    <p style="font-size: 13px; color: #475569; line-height: 1.5">
+                      Leve seu RG/CNH, o documento da pessoa desaparecida (RG,
+                      CPF ou Certidão de Nascimento) e uma foto recente e nítida
+                      do rosto.
+                    </p>
+                  </div>
+
+                  <div class="step-box">
+                    <div class="step-num">3</div>
+                    <h4 style="font-size: 14px; margin-bottom: 6px">
+                      Anote Detalhes Essenciais
+                    </h4>
+                    <p style="font-size: 13px; color: #475569; line-height: 1.5">
+                      Relate roupas e calçados usados, último local e horário
+                      exatos em que foi visto, características físicas, uso de
+                      medicamentos e contatos próximos.
+                    </p>
+                  </div>
+
+                  <div class="step-box">
+                    <div class="step-num">4</div>
+                    <h4 style="font-size: 14px; margin-bottom: 6px">
+                      Compareça à Delegacia e Guarde o Protocolo
+                    </h4>
+                    <p style="font-size: 13px; color: #475569; line-height: 1.5">
+                      Solicite a inclusão no Cadastro Nacional de Pessoas
+                      Desaparecidas, guarde o número do B.O. e publique o alerta
+                      aqui no CRA.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <!-- MODAL DE DETALHES DA POSTAGEM E COMENTÁRIOS -->
+    <div class="modal-backdrop" id="post-detail-modal">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 id="detail-modal-title" style="font-size: 18px">
+            Detalhes do Alerta
+          </h3>
+          <button class="btn btn-outline" onclick="closePostDetailModal()">
+            ✕ Fechar
+          </button>
+        </div>
+        <div class="modal-body" id="post-detail-body"></div>
+      </div>
+    </div>
+
+    <!-- MODAL DE NOTIFICAÇÕES E MODERAÇÃO (ADMIN & USUÁRIO) -->
+    <div class="modal-backdrop" id="notifications-modal">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <div>
+            <h3 style="font-size: 18px" id="notif-modal-title">
+              Central de Notificações e Moderação
+            </h3>
+            <p style="font-size: 12px; color: #64748b" id="notif-modal-subtitle">
+              Sincronizado em tempo real com o aplicativo mobile
+            </p>
+          </div>
+          <button class="btn btn-outline" onclick="closeNotificationsModal()">
+            ✕ Fechar
+          </button>
+        </div>
+        <div class="modal-body" id="notifications-modal-body"></div>
+      </div>
+    </div>
+
+    <!-- MODAL DE LOGIN / CADASTRO -->
+    <div class="modal-backdrop" id="auth-modal">
+      <div class="modal-dialog" style="max-width: 460px">
+        <div class="modal-header">
+          <h3 id="auth-modal-title" style="font-size: 18px">
+            Acessar Conta CRA
+          </h3>
+          <button class="btn btn-outline" onclick="closeAuthModal()">
+            ✕
+          </button>
+        </div>
+        <div class="modal-body">
+          <div style="display: flex; gap: 8px; margin-bottom: 18px">
+            <button
+              class="btn btn-primary"
+              id="tab-btn-login"
+              style="flex: 1"
+              onclick="switchAuthMode('login')"
+            >
+              Entrar
+            </button>
+            <button
+              class="btn btn-outline"
+              id="tab-btn-register"
+              style="flex: 1"
+              onclick="switchAuthMode('register')"
+            >
+              Criar Conta
+            </button>
+          </div>
+
+          <!-- FORM LOGIN -->
+          <form id="login-form" onsubmit="handleLoginSubmit(event)">
+            <div class="form-group" style="margin-bottom: 14px">
+              <label>E-mail Cadastrado</label>
+              <input
+                type="email"
+                id="login-email"
+                required
+                placeholder="seuemail@exemplo.com"
+              />
+            </div>
+            <div class="form-group" style="margin-bottom: 18px">
+              <label>Senha</label>
+              <input
+                type="password"
+                id="login-password"
+                required
+                placeholder="Sua senha"
+              />
+            </div>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              id="login-submit-btn"
+              style="width: 100%; padding: 12px"
+            >
+              Entrar na Conta
+            </button>
+          </form>
+
+          <!-- FORM CADASTRO -->
+          <form
+            id="register-form"
+            style="display: none"
+            onsubmit="handleRegisterSubmit(event)"
+          >
+            <div class="form-group" style="margin-bottom: 12px">
+              <label>Nome de Usuário *</label>
+              <input
+                type="text"
+                id="reg-username"
+                required
+                placeholder="Ex: Maria Silva"
+              />
+            </div>
+            <div class="form-group" style="margin-bottom: 12px">
+              <label>E-mail *</label>
+              <input
+                type="email"
+                id="reg-email"
+                required
+                placeholder="maria@exemplo.com"
+              />
+            </div>
+            <div class="form-group" style="margin-bottom: 12px">
+              <label>CPF (11 dígitos) *</label>
+              <input
+                type="text"
+                id="reg-cpf"
+                required
+                placeholder="00000000000"
+              />
+            </div>
+            <div class="form-group" style="margin-bottom: 12px">
+              <label>Telefone com DDD *</label>
+              <input
+                type="text"
+                id="reg-telefone"
+                required
+                placeholder="11999999999"
+              />
+            </div>
+            <div class="form-group" style="margin-bottom: 18px">
+              <label>Senha *</label>
+              <input
+                type="password"
+                id="reg-password"
+                required
+                placeholder="Mínimo de 6 caracteres"
+              />
+            </div>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              id="reg-submit-btn"
+              style="width: 100%; padding: 12px"
+            >
+              Criar Minha Conta
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
+
