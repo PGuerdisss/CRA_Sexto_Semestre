@@ -100,11 +100,15 @@ test.describe("Suíte E2E de Qualidade de Software — Sistema CRA (Playwright)"
                 return this;
               },
               clearLayers: () => {
-                const mapEl = document.getElementById("desktop-map");
+                const mapEl =
+                  document.getElementById("desktop-map") ||
+                  document.getElementById("expo-mobile-map");
                 if (mapEl) mapEl.innerHTML = "";
               },
               addLayer: (marker: any) => {
-                const mapEl = document.getElementById("desktop-map");
+                const mapEl =
+                  document.getElementById("desktop-map") ||
+                  document.getElementById("expo-mobile-map");
                 if (mapEl && marker?.html) {
                   const div = document.createElement("div");
                   div.innerHTML = marker.html;
@@ -116,6 +120,9 @@ test.describe("Suíte E2E de Qualidade de Software — Sistema CRA (Playwright)"
             marker: (_coords: any, opts: any) => ({
               html: opts?.icon?.html || "",
               bindPopup: function () {
+                return this;
+              },
+              on: function () {
                 return this;
               },
             }),
@@ -449,6 +456,45 @@ test.describe("Suíte E2E de Qualidade de Software — Sistema CRA (Playwright)"
 
     await expect(page.locator("#desktop-map")).toBeVisible();
     await expect(page.locator(".custom-Case-pin")).toHaveCount(2);
+  });
+
+  // ==========================================================================
+  // E2E-06: Versão Única Responsiva em Viewport Mobile (390x844)
+  // ==========================================================================
+  test("E2E-06: Deve adaptar a interface para celular (390x844), ocultar barra lateral, bloquear visitante e permitir login via barra mobile", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+
+    // Barra lateral desktop oculta; cabeçalho e tabs mobile visíveis
+    await expect(page.locator(".sidebar")).toBeHidden();
+    await expect(page.locator("#mobile-topbar")).toBeVisible();
+    await expect(page.locator(".mobile-tab-bar")).toBeVisible();
+
+    // Feed renderiza os 2 cards aprovados sem estouro horizontal
+    await expect(page.locator(".post-card")).toHaveCount(2);
+    await expect(page.getByText("Gabriel Henrique")).toBeVisible();
+
+    // Testa bloqueio na aba Report via bottom tab bar mobile
+    await page.locator("#mnav-report").click();
+    await expect(page.locator("#report-guest-warning")).toBeVisible();
+    await expect(page.locator("#report-guest-warning")).toContainText(
+      "Identificação Necessária"
+    );
+
+    // Faz login como usuário cadastrado pelo botão do Header Mobile
+    await page.locator("#mheader-guest-btn").click();
+    await page.locator("#login-email").fill("cidadao@cra.com");
+    await page.locator("#login-password").fill("123456");
+    await page.locator("#login-submit-btn").click();
+
+    await expect(page.locator("#mheader-logged-brand")).toBeVisible();
+
+    // Vai para Perfil pela tab mobile e verifica Auxílio B.O. & Delegacia Próxima
+    await page.locator("#mnav-profile").click();
+    await expect(page.locator("#profile-name")).toHaveText("Pedro Cidadão");
+    await expect(page.locator("#profile-bo-assistant")).toBeVisible();
   });
 });
 

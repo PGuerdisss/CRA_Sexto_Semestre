@@ -2,7 +2,9 @@
 // CRA DESKTOP / WEB PC — CONECTADO EM TEMPO REAL AO BACKEND DO MOBILE
 // ============================================================================
 
+const DIRECT_BACKEND_URL = "https://deploy-backend-5-semestre.onrender.com";
 const API_BASE = "/api";
+let resolvedApiBase = API_BASE;
 
 // IDs de registros de teste antigos/vazios ocultados com segurança
 const LEGACY_DELETED_POST_IDS = new Set([
@@ -108,10 +110,18 @@ function saveGeocodeToCache(key, coords) {
 // 1. COMUNICAÇÃO COM A API (COM TOKEN DE USUÁRIO OU VISITANTE)
 // ============================================================================
 
+async function rawFetchWithFallback(path, options = {}) {
+  const base =
+    typeof window !== "undefined" && window.location?.protocol === "file:"
+      ? DIRECT_BACKEND_URL
+      : resolvedApiBase;
+  return fetch(`${base}${path}`, options);
+}
+
 async function getGuestToken() {
   if (guestToken) return guestToken;
   try {
-    const res = await fetch(`${API_BASE}/auth/login`, {
+    const res = await rawFetchWithFallback("/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -149,13 +159,13 @@ async function apiRequest(path, options = {}, isRetry = false) {
     }
   }
 
-  const response = await fetch(`${API_BASE}${path}`, {
+  const response = await rawFetchWithFallback(path, {
     ...options,
     method,
     headers,
   });
 
-  if ((response.status === 401 || response.status === 403) && !isRetry) {
+  if ((response.status === 401 || response.status === 403) && !isRetry && !userToken) {
     guestToken = null;
     localStorage.removeItem("cra_guest_token");
     const newGToken = await getGuestToken();
@@ -164,7 +174,7 @@ async function apiRequest(path, options = {}, isRetry = false) {
         ...headers,
         Authorization: `Bearer ${newGToken}`,
       };
-      return fetch(`${API_BASE}${path}`, {
+      return rawFetchWithFallback(path, {
         ...options,
         method,
         headers: retryHeaders,
@@ -270,6 +280,11 @@ function updateUserUI() {
   const profActions = document.getElementById("profile-auth-actions");
   const profBoAssistant = document.getElementById("profile-bo-assistant");
 
+  const mGuestBtn = document.getElementById("mheader-guest-btn");
+  const mGuestBrand = document.getElementById("mheader-guest-brand");
+  const mLoggedBrand = document.getElementById("mheader-logged-brand");
+  const mBellBtn = document.getElementById("mheader-bell-btn");
+
   if (!isLogged) {
     avatarEl.textContent = "V";
     nameEl.textContent = "Visitante";
@@ -277,6 +292,11 @@ function updateUserUI() {
     authBtn.textContent = "Entrar / Cadastrar";
     authBtn.className = "btn btn-primary";
     authBtn.onclick = () => openAuthModal("login");
+
+    if (mGuestBtn) mGuestBtn.style.display = "inline-flex";
+    if (mGuestBrand) mGuestBrand.style.display = "inline-flex";
+    if (mLoggedBrand) mLoggedBrand.style.display = "none";
+    if (mBellBtn) mBellBtn.style.display = "none";
 
     navAdminBtn.style.display = "none";
     adminFilterGroup.style.display = "none";
@@ -303,6 +323,11 @@ function updateUserUI() {
     authBtn.className = "btn btn-danger";
     authBtn.onclick = handleLogout;
 
+    if (mGuestBtn) mGuestBtn.style.display = "none";
+    if (mGuestBrand) mGuestBrand.style.display = "none";
+    if (mLoggedBrand) mLoggedBrand.style.display = "inline-flex";
+    if (mBellBtn) mBellBtn.style.display = "inline-flex";
+
     navAdminBtn.style.display = isAdmin ? "flex" : "none";
     adminFilterGroup.style.display = isAdmin ? "flex" : "none";
 
@@ -315,8 +340,8 @@ function updateUserUI() {
     profName.textContent = currentUser.username;
     profEmail.textContent = currentUser.email;
     profBadge.textContent = isAdmin
-      ? "🛡️ Administrador CRA"
-      : "👤 Usuário Cadastrado";
+      ? "Administrador CRA"
+      : "Usuário Cadastrado";
     profActions.innerHTML = `<button class="btn btn-danger" onclick="handleLogout()">Sair da Conta</button>`;
 
     // Exibe o Auxílio de B.O. e Delegacia Próxima para o Usuário Cadastrado (Não Admin)
@@ -436,15 +461,22 @@ async function loadAdminNotifications() {
 function updateNotificationBadges() {
   const total = pendingPostsList.length + pendingCommentsList.length;
   const bellBadge = document.getElementById("topbar-bell-badge");
+  const mobileBellBadge = document.getElementById("mobile-bell-badge");
   const sideBadge = document.getElementById("sidebar-admin-badge");
 
   if (isAdminUser() && total > 0) {
+    const label = total > 9 ? "9+" : String(total);
     bellBadge.style.display = "flex";
-    bellBadge.textContent = total > 9 ? "9+" : String(total);
+    bellBadge.textContent = label;
+    if (mobileBellBadge) {
+      mobileBellBadge.style.display = "flex";
+      mobileBellBadge.textContent = label;
+    }
     sideBadge.style.display = "inline-block";
     sideBadge.textContent = String(total);
   } else {
     bellBadge.style.display = "none";
+    if (mobileBellBadge) mobileBellBadge.style.display = "none";
     sideBadge.style.display = "none";
   }
 }
@@ -501,7 +533,9 @@ function renderFeed() {
   if (filtered.length === 0) {
     container.innerHTML = `
       <div class="empty-state-box">
-        <div style="font-size: 42px; margin-bottom: 10px">📋</div>
+        <div style="margin-bottom: 12px; display:flex; justify-content:center">
+          <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
         <h3 style="font-size: 18px; color: #0f172a">Nenhuma postagem encontrada</h3>
         <p style="font-size: 14px; color: #64748b; margin-top: 6px">
           Crie um novo alerta pelo botão "+ Novo Alerta" ou pelo aplicativo no celular.
@@ -534,19 +568,19 @@ function renderFeed() {
 
       const imgHtml = isValidImageUrl(post.fotoPerfil)
         ? `<img src="${post.fotoPerfil}" alt="${escapeHtml(post.nome)}" />`
-        : `<div style="font-size: 54px; color: #94a3b8">👤</div>`;
+        : `<div style="display:flex;align-items:center;justify-content:center;color:#94a3b8"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
 
       let adminButtons = "";
       let deleteForeverBtn = "";
       if (isAdminUser()) {
         if (post.status === "Pendente") {
           adminButtons = `
-            <button class="btn btn-success" style="flex:1" onclick="changePostStatus('${postId}', 'Aprovada')">✓ Aprovar</button>
-            <button class="btn btn-danger" style="flex:1" onclick="changePostStatus('${postId}', 'Recusada')">✕ Reprovar</button>
+            <button class="btn btn-success" style="flex:1" onclick="changePostStatus('${postId}', 'Aprovada')">Aprovar</button>
+            <button class="btn btn-danger" style="flex:1" onclick="changePostStatus('${postId}', 'Recusada')">Reprovar</button>
           `;
         } else if (post.status === "Aprovada") {
           adminButtons = `
-            <button class="btn btn-success" style="flex:1" onclick="changePostStatus('${postId}', 'Encontrado')">✓ Encontrada</button>
+            <button class="btn btn-success" style="flex:1" onclick="changePostStatus('${postId}', 'Encontrado')">Encontrada</button>
             <button class="btn btn-secondary-dark" style="flex:1" onclick="changePostStatus('${postId}', 'Não encontrado')">Finalizar Caso</button>
           `;
         } else if (
@@ -554,7 +588,7 @@ function renderFeed() {
           post.status === "Não encontrado"
         ) {
           adminButtons = `
-            <button class="btn btn-outline" style="flex:1" onclick="changePostStatus('${postId}', 'Aprovada')">🔄 Reabrir Alerta</button>
+            <button class="btn btn-outline" style="flex:1" onclick="changePostStatus('${postId}', 'Aprovada')">Reabrir Alerta</button>
           `;
         }
 
@@ -566,7 +600,7 @@ function renderFeed() {
           post.nome
         ).replace(/'/g, "\\'")}')"
           >
-            🗑️ Apagar Postagem Para Sempre
+            Apagar Postagem Para Sempre
           </button>
         `;
       }
@@ -580,13 +614,13 @@ function renderFeed() {
           <div class="post-body">
             <div class="post-name">${escapeHtml(post.nome)}</div>
             <div class="post-meta">
-              <div class="post-meta-row">🎂 <strong>Idade:</strong> ${
+              <div class="post-meta-row"><strong>Idade:</strong> ${
                 post.idade
               } anos</div>
-              <div class="post-meta-row">📍 <strong>Local:</strong> ${escapeHtml(
+              <div class="post-meta-row"><strong>Local:</strong> ${escapeHtml(
                 post.ultimaLocalidade
               )}</div>
-              <div class="post-meta-row">📅 <strong>Data:</strong> ${escapeHtml(
+              <div class="post-meta-row"><strong>Data:</strong> ${escapeHtml(
                 formatDateForDisplay(post.data)
               )}</div>
             </div>
@@ -595,7 +629,7 @@ function renderFeed() {
             )}</p>
             <div class="post-actions" style="flex-wrap: wrap;">
               <button class="btn btn-primary" style="width:100%" onclick="openPostDetailModal('${postId}')">
-                👁️ Ver Detalhes e Comentários
+                Ver Detalhes e Comentários
               </button>
               ${
                 adminButtons
@@ -687,7 +721,7 @@ async function openPostDetailModal(postId) {
     ? `<img src="${post.fotoPerfil}" class="detail-photo" alt="${escapeHtml(
         post.nome
       )}" />`
-    : `<div class="detail-photo" style="display:flex;align-items:center;justify-content:center;font-size:64px;color:#94a3b8">👤</div>`;
+    : `<div class="detail-photo" style="display:flex;align-items:center;justify-content:center;color:#94a3b8"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
 
   const commentsHtml =
     visibleComments.length === 0
@@ -697,13 +731,13 @@ async function openPostDetailModal(postId) {
             (c) => `
           <div class="comment-item">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-              <strong style="font-size:13px;color:#0f172a">👤 ${escapeHtml(
+              <strong style="font-size:13px;color:#0f172a">${escapeHtml(
                 c.autor
               )}</strong>
               <span style="font-size:11px;color:${
                 c.status === "Pendente" ? "#d97706" : "#10b981"
               };font-weight:700">${
-              c.status === "Pendente" ? "⏳ Pendente" : "✓ Verificado"
+              c.status === "Pendente" ? "Pendente" : "Verificado"
             }</span>
             </div>
             <p style="font-size:13px;color:#334155;line-height:1.5">${escapeHtml(
@@ -770,7 +804,7 @@ async function openPostDetailModal(postId) {
         </p>
 
         <h4 style="font-size:13px;color:#475569;text-transform:uppercase;margin:20px 0 10px">
-          💬 Comentários e Informações da Comunidade (${visibleComments.length})
+          Comentários e Informações da Comunidade (${visibleComments.length})
         </h4>
         <div id="detail-comments-list">
           ${commentsHtml}
@@ -857,7 +891,7 @@ function handlePhotoSelected(event) {
       const placeholder = document.getElementById("photo-upload-placeholder");
       preview.src = uploadedPhotoDataUri;
       preview.style.display = "inline-block";
-      placeholder.innerHTML = `<div style="font-weight:700;color:#10b981">✓ Foto pronta para envio (clique para trocar)</div>`;
+      placeholder.innerHTML = `<div style="font-weight:700;color:#10b981">Foto pronta para envio (clique para trocar)</div>`;
     };
     img.src = e.target.result;
   };
@@ -979,7 +1013,9 @@ async function submitReportForm(event) {
       uploadedPhotoDataUri = "";
       document.getElementById("report-photo-preview").style.display = "none";
       document.getElementById("photo-upload-placeholder").innerHTML = `
-        <div style="font-size: 28px; margin-bottom: 6px">📷</div>
+        <div style="margin-bottom: 8px; display:flex; justify-content:center">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0040a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
         <div style="font-weight: 700; color: #0040a1">
           Clique para selecionar uma foto do seu computador
         </div>
@@ -1009,7 +1045,7 @@ async function submitReportForm(event) {
     alert("Falha de conexão ao registrar alerta.");
   } finally {
     btn.disabled = false;
-    btn.textContent = "📤 Enviar Alerta de Desaparecimento";
+    btn.textContent = "Enviar Alerta de Desaparecimento";
   }
 }
 
@@ -1166,7 +1202,7 @@ async function updateMapPins() {
     const postId = post.id || post._id;
     const innerPin = isValidImageUrl(post.fotoPerfil)
       ? `<img src="${post.fotoPerfil}" alt="${escapeHtml(post.nome)}" />`
-      : `<span>👤</span>`;
+      : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
 
     const icon = L.divIcon({
       className: "",
@@ -1283,7 +1319,7 @@ function setMapRadius(km) {
 
 function locateNearbyPoliceStationsPC() {
   const box = document.getElementById("pc-delegacias-result");
-  box.innerHTML = `<p style="font-size:13px;color:#0040a1;font-weight:600">⏳ Obtendo sua localização atual e buscando delegacias próximas...</p>`;
+  box.innerHTML = `<p style="font-size:13px;color:#0040a1;font-weight:600">Obtendo sua localização atual e buscando delegacias próximas...</p>`;
 
   if (!navigator.geolocation) {
     box.innerHTML = `<p style="font-size:13px;color:#dc2626">Seu navegador não suporta geolocalização. Use o botão "Abrir Delegacias no Google Maps".</p>`;
@@ -1315,7 +1351,7 @@ function locateNearbyPoliceStationsPC() {
             .sort((a, b) => a.dist - b.dist);
 
           box.innerHTML =
-            `<h4 style="font-size:13px;color:#0040a1;margin-bottom:8px">📍 Delegacias Encontradas Próximas à Sua Posição:</h4>` +
+            `<h4 style="font-size:13px;color:#0040a1;margin-bottom:8px">Delegacias Encontradas Próximas à Sua Posição:</h4>` +
             items
               .map(
                 (it) => `
@@ -1339,7 +1375,7 @@ function locateNearbyPoliceStationsPC() {
                   class="btn btn-primary"
                   style="text-decoration:none"
                 >
-                  🗺️ Traçar Rota
+                  Traçar Rota
                 </a>
               </div>
             `
@@ -1406,7 +1442,9 @@ function renderNotificationsModalContent() {
   if (!isAdminUser()) {
     body.innerHTML = `
       <div class="empty-state-box" style="padding:36px">
-        <div style="font-size:38px;margin-bottom:8px">✅</div>
+        <div style="margin-bottom:10px;display:flex;justify-content:center">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
         <h3>Tudo atualizado!</h3>
         <p style="font-size:13px;color:#64748b;margin-top:6px">
           Os alertas do PC e do aplicativo Mobile estão sincronizados em tempo real (${allPosts.length} casos ativos).
@@ -1419,7 +1457,9 @@ function renderNotificationsModalContent() {
   if (pendingPostsList.length === 0 && pendingCommentsList.length === 0) {
     body.innerHTML = `
       <div class="empty-state-box" style="padding:36px">
-        <div style="font-size:38px;margin-bottom:8px">🛡️</div>
+        <div style="margin-bottom:10px;display:flex;justify-content:center">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#0040a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
         <h3>Nenhuma pendência de moderação!</h3>
         <p style="font-size:13px;color:#64748b;margin-top:6px">
           Todas as postagens e comentários enviados pelo PC ou Mobile já foram revisados.
@@ -1432,7 +1472,7 @@ function renderNotificationsModalContent() {
   const postsSection =
     pendingPostsList.length > 0
       ? `
-        <h4 style="color:#0040a1;margin-bottom:10px">📢 Postagens Aguardando Liberação (${
+        <h4 style="color:#0040a1;margin-bottom:10px">Postagens Aguardando Liberação (${
           pendingPostsList.length
         })</h4>
         ${pendingPostsList
@@ -1461,7 +1501,7 @@ function renderNotificationsModalContent() {
   const commentsSection =
     pendingCommentsList.length > 0
       ? `
-        <h4 style="color:#0040a1;margin:18px 0 10px">💬 Comentários Aguardando Liberação (${
+        <h4 style="color:#0040a1;margin:18px 0 10px">Comentários Aguardando Liberação (${
           pendingCommentsList.length
         })</h4>
         ${pendingCommentsList
@@ -1469,7 +1509,7 @@ function renderNotificationsModalContent() {
             (c, idx) => `
             <div class="delegacia-card" style="margin-bottom:10px">
               <div>
-                <strong style="font-size:13px">👤 ${escapeHtml(
+                <strong style="font-size:13px">${escapeHtml(
                   c.autor
                 )}</strong>
                 <div style="font-size:13px;color:#334155;font-style:italic;margin-top:3px">"${escapeHtml(
@@ -1555,7 +1595,7 @@ async function handleLoginSubmit(event) {
   btn.textContent = "Conectando...";
 
   try {
-    const res = await fetch(`${API_BASE}/auth/login`, {
+    const res = await rawFetchWithFallback("/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -1593,7 +1633,7 @@ async function handleRegisterSubmit(event) {
   btn.textContent = "Criando conta...";
 
   try {
-    const res = await fetch(`${API_BASE}/auth/register`, {
+    const res = await rawFetchWithFallback("/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, email, cpf, telefone, password }),
@@ -1623,10 +1663,13 @@ function switchTab(tabName) {
   ["feed", "map", "report", "profile"].forEach((t) => {
     document
       .getElementById(`tab-${t}`)
-      .classList.toggle("active", t === tabName);
+      ?.classList.toggle("active", t === tabName);
     document
       .getElementById(`nav-${t}`)
-      .classList.toggle("active", t === tabName);
+      ?.classList.toggle("active", t === tabName);
+    document
+      .getElementById(`mnav-${t}`)
+      ?.classList.toggle("active", t === tabName);
   });
 
   if (tabName === "map") {
@@ -1654,6 +1697,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   await refreshAllData(false);
 
   setInterval(() => {
-    refreshAllData(false);
-  }, 15000);
+    if (!document.hidden) {
+      refreshAllData(false);
+    }
+  }, 45000);
 });

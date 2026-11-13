@@ -2,8 +2,8 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CRA Desktop — Child Rescue Alert (Sincronizado com Mobile)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>CRA — Child Rescue Alert</title>
     <!-- Fontes oficiais do projeto CRA -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,7 +27,7 @@
             <div class="brand-logo-circle">CRA</div>
             <div>
               <div class="brand-title">CHILD RESCUE ALERT</div>
-              <div class="brand-subtitle">Versão Desktop PC • Sincronizada</div>
+              <div class="brand-subtitle">Versão Responsiva (PC &amp; Mobile)</div>
             </div>
           </div>
 
@@ -37,7 +37,7 @@
               id="nav-feed"
               onclick="switchTab('feed')"
             >
-              <span>📢</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
               <span>Feed de Alertas</span>
             </button>
 
@@ -46,7 +46,7 @@
               id="nav-map"
               onclick="switchTab('map')"
             >
-              <span>🗺️</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
               <span>Mapa de Casos</span>
             </button>
 
@@ -55,7 +55,7 @@
               id="nav-report"
               onclick="switchTab('report')"
             >
-              <span>🚨</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               <span>Reportar Desaparecimento</span>
             </button>
 
@@ -64,7 +64,7 @@
               id="nav-profile"
               onclick="switchTab('profile')"
             >
-              <span>👤</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               <span>Meu Perfil & Auxílio B.O.</span>
             </button>
 
@@ -74,7 +74,7 @@
               style="display: none"
               onclick="openNotificationsModal()"
             >
-              <span>🛡️</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               <span>Central de Moderação</span>
               <span class="badge" id="sidebar-admin-badge" style="display: none"
                 >0</span
@@ -112,9 +112,67 @@
         </div>
       </aside>
 
-      <!-- ÁREA PRINCIPAL DO PC -->
+      <!-- ÁREA PRINCIPAL -->
       <main class="main-area">
-        <!-- TOPBAR -->
+        <!-- HEADER MOBILE (Visível em telas <= 768px — estilo fiel Expo Go) -->
+        <header class="mobile-topbar" id="mobile-topbar">
+          <!-- Visitante -->
+          <button
+            class="m-guest-pill-btn"
+            id="mheader-guest-btn"
+            onclick="openAuthModal('login')"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0040A1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+              <polyline points="10 17 15 12 10 7"/>
+              <line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+            <span>Cadastrar / Conectar</span>
+          </button>
+
+          <div class="m-guest-brand" id="mheader-guest-brand">
+            <svg width="26" height="26" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+              <circle cx="50" cy="50" r="46" stroke="#104559" stroke-width="6" />
+              <line x1="33" y1="22" x2="33" y2="78" stroke="#104559" stroke-width="4" stroke-linecap="round" />
+              <line x1="50" y1="14" x2="50" y2="86" stroke="#104559" stroke-width="4" stroke-linecap="round" />
+              <line x1="67" y1="22" x2="67" y2="78" stroke="#104559" stroke-width="4" stroke-linecap="round" />
+              <path d="M22 36 C 22 25, 38 25, 42 36 C 46 47, 36 52, 36 64 C 36 74, 22 74, 22 64 Z" fill="#104559" />
+              <path d="M44 26 C 44 16, 56 16, 56 26 C 56 36, 52 50, 52 64 C 52 75, 44 75, 44 64 Z" fill="#104559" />
+              <path d="M58 34 C 58 24, 78 24, 78 36 C 78 48, 66 52, 66 64 C 66 74, 58 74, 58 64 Z" fill="#104559" />
+            </svg>
+            <span>CRA</span>
+          </div>
+
+          <!-- Logado -->
+          <div class="m-logged-brand" id="mheader-logged-brand" style="display: none">
+            <svg width="28" height="28" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+              <circle cx="50" cy="50" r="46" stroke="#104559" stroke-width="6" />
+              <line x1="33" y1="22" x2="33" y2="78" stroke="#104559" stroke-width="4" stroke-linecap="round" />
+              <line x1="50" y1="14" x2="50" y2="86" stroke="#104559" stroke-width="4" stroke-linecap="round" />
+              <line x1="67" y1="22" x2="67" y2="78" stroke="#104559" stroke-width="4" stroke-linecap="round" />
+              <path d="M22 36 C 22 25, 38 25, 42 36 C 46 47, 36 52, 36 64 C 36 74, 22 74, 22 64 Z" fill="#104559" />
+              <path d="M44 26 C 44 16, 56 16, 56 26 C 56 36, 52 50, 52 64 C 52 75, 44 75, 44 64 Z" fill="#104559" />
+              <path d="M58 34 C 58 24, 78 24, 78 36 C 78 48, 66 52, 66 64 C 66 74, 58 74, 58 64 Z" fill="#104559" />
+            </svg>
+            <span>CHILD RESCUE ALERT</span>
+          </div>
+
+          <button
+            class="m-bell-btn"
+            id="mheader-bell-btn"
+            style="display: none"
+            onclick="openNotificationsModal()"
+            title="Notificações e Moderação"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span class="m-bell-badge" id="mobile-bell-badge" style="display: none">0</span>
+          </button>
+        </header>
+
+        <!-- TOPBAR DESKTOP -->
         <header class="topbar">
           <div class="topbar-left">
             <div>
@@ -137,7 +195,7 @@
               onclick="openNotificationsModal()"
               title="Central de Notificações e Moderação"
             >
-              🔔
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
               <span
                 class="bell-badge"
                 id="topbar-bell-badge"
@@ -152,9 +210,13 @@
         <div class="content-viewport">
           <!-- ABA 1: FEED DE POSTAGENS -->
           <section class="tab-panel active" id="tab-feed">
+            <div class="mobile-feed-heading">
+              <h2>Postagens</h2>
+              <p>Postagens ativas da sua comunidade.</p>
+            </div>
             <div class="feed-toolbar">
               <div class="search-box">
-                <span class="search-icon">🔍</span>
+                <span class="search-icon" style="display:flex;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
                 <input
                   type="text"
                   id="feed-search-input"
@@ -233,8 +295,10 @@
                   <button
                     class="btn btn-outline"
                     onclick="centerMapOnUserGPS()"
+                    style="display: inline-flex; align-items: center; gap: 6px"
                   >
-                    📍 Minha Localização
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Minha Localização
                   </button>
                 </div>
 
@@ -308,11 +372,10 @@
                   display: flex;
                   align-items: center;
                   justify-content: center;
-                  font-size: 38px;
                   margin: 0 auto 20px;
                 "
               >
-                🔒
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0040a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>
               <h2 style="font-size: 23px; color: #0f172a; margin-bottom: 10px">
                 Identificação Necessária
@@ -344,14 +407,14 @@
                   style="padding: 13px 20px; font-size: 15px"
                   onclick="openAuthModal('login')"
                 >
-                  🔑 Conectar / Entrar
+                  Conectar / Entrar
                 </button>
                 <button
                   class="btn btn-outline"
                   style="padding: 13px 20px; font-size: 15px"
                   onclick="openAuthModal('register')"
                 >
-                  👤 Criar nova conta
+                  Criar nova conta
                 </button>
               </div>
 
@@ -365,7 +428,7 @@
                   color: #475569;
                 "
               >
-                🛡️ O CRA protege seus dados cadastrais e as informações das
+                O CRA protege seus dados cadastrais e as informações das
                 postagens sob análise oficial.
               </div>
             </div>
@@ -396,8 +459,8 @@
                         onchange="handlePhotoSelected(event)"
                       />
                       <div id="photo-upload-placeholder">
-                        <div style="font-size: 28px; margin-bottom: 6px">
-                          📷
+                        <div style="margin-bottom: 8px; display: flex; justify-content: center">
+                          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0040a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                         </div>
                         <div style="font-weight: 700; color: #0040a1">
                           Clique para selecionar uma foto do seu computador
@@ -503,7 +566,7 @@
                     id="report-submit-btn"
                     style="padding: 12px 24px; font-size: 14px"
                   >
-                    📤 Enviar Alerta de Desaparecimento
+                    Enviar Alerta de Desaparecimento
                   </button>
                 </div>
               </form>
@@ -586,7 +649,7 @@
                       >AUXÍLIO EXCLUSIVO AO CIDADÃO CADASTRADO</span
                     >
                     <h3 style="font-size: 20px; color: #0f172a; margin-top: 2px">
-                      🚓 Auxílio para Boletim de Ocorrência e Delegacia Mais
+                      Auxílio para Boletim de Ocorrência e Delegacia Mais
                       Próxima
                     </h3>
                   </div>
@@ -596,19 +659,19 @@
                       class="btn btn-primary"
                       onclick="locateNearbyPoliceStationsPC()"
                     >
-                      📍 Localizar Delegacias Próximas de Mim (GPS)
+                      Localizar Delegacias Próximas de Mim (GPS)
                     </button>
                     <button
                       class="btn btn-outline"
                       onclick="openGoogleMapsPoliceSearchPC()"
                     >
-                      🗺️ Abrir Delegacias no Google Maps
+                      Abrir Delegacias no Google Maps
                     </button>
                   </div>
                 </div>
 
                 <div class="law-banner">
-                  ⚖️ <strong>Lei da Busca Imediata (Lei Federal nº 11.259/2005 e ECA):</strong>
+                  <strong>Lei da Busca Imediata (Lei Federal nº 11.259/2005 e ECA):</strong>
                   NÃO é necessário aguardar 24h ou 48h para comunicar um
                   desaparecimento! O registro do Boletim de Ocorrência e o
                   início das buscas devem ser feitos
@@ -687,6 +750,53 @@
             </div>
           </section>
         </div>
+
+        <!-- BOTTOM TAB BAR MOBILE (Visível em telas <= 768px — Expo Go TabsRoutes) -->
+        <nav class="mobile-tab-bar" aria-label="Navegação Mobile">
+          <button
+            class="m-tab-item active"
+            id="mnav-feed"
+            onclick="switchTab('feed')"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+            <span>Feed</span>
+          </button>
+
+          <button
+            class="m-tab-item"
+            id="mnav-map"
+            onclick="switchTab('map')"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M15 4.5l-6-2-6 2v15l6-2 6 2 6-2v-15l-6 2zM9 4.77l6 2v12.46l-6-2V4.77z"/>
+            </svg>
+            <span>Maps</span>
+          </button>
+
+          <button
+            class="m-tab-item"
+            id="mnav-report"
+            onclick="switchTab('report')"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M15.73 3H8.27L3 8.27v7.46L8.27 21h7.46L21 15.73V8.27L15.73 3zM12 17.3c-.72 0-1.3-.58-1.3-1.3s.58-1.3 1.3-1.3 1.3.58 1.3 1.3-.58 1.3-1.3 1.3zm1-4.3h-2V7h2v6z"/>
+            </svg>
+            <span>Report</span>
+          </button>
+
+          <button
+            class="m-tab-item"
+            id="mnav-profile"
+            onclick="switchTab('profile')"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+            </svg>
+            <span>Perfil</span>
+          </button>
+        </nav>
       </main>
     </div>
 
@@ -698,7 +808,7 @@
             Detalhes do Alerta
           </h3>
           <button class="btn btn-outline" onclick="closePostDetailModal()">
-            ✕ Fechar
+            Fechar
           </button>
         </div>
         <div class="modal-body" id="post-detail-body"></div>
@@ -718,7 +828,7 @@
             </p>
           </div>
           <button class="btn btn-outline" onclick="closeNotificationsModal()">
-            ✕ Fechar
+            Fechar
           </button>
         </div>
         <div class="modal-body" id="notifications-modal-body"></div>
@@ -733,7 +843,7 @@
             Acessar Conta CRA
           </h3>
           <button class="btn btn-outline" onclick="closeAuthModal()">
-            ✕
+            Fechar
           </button>
         </div>
         <div class="modal-body">

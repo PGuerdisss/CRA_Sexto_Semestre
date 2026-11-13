@@ -1,0 +1,22 @@
+"$schema" = "https://open-api.netlify.com/netlify.schema.json"
+
+[build]
+  publish = "web-pc"
+  command = "echo Publishing CRA PC and Mobile Web"
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/mobile"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/celular"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pc"
+  to = "/index.html"
+  status = 200
+

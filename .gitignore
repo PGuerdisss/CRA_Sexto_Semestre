@@ -39,3 +39,11 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Netlify local link state
+.netlify
+.netlify/
+
+# Playwright artifacts
+playwright-report/
+test-results/

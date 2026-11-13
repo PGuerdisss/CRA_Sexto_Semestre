@@ -831,10 +831,270 @@ h4,
   border: 1px solid var(--slate-200);
 }
 
+/* COMPONENTES RESPONSIVOS MOBILE (EXIBE APENAS <= 768PX) */
+.mobile-topbar,
+.mobile-feed-heading,
+.mobile-tab-bar {
+  display: none;
+}
+
+.m-guest-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #104559;
+  background: #ffffff;
+  color: #104559;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.m-guest-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+  color: #104559;
+}
+
+.m-logged-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  color: #104559;
+  letter-spacing: 0.3px;
+}
+
+.m-bell-btn {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: #f1f5f9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.m-bell-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+.mobile-feed-heading h2 {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--slate-900);
+}
+
+.mobile-feed-heading p {
+  font-size: 14px;
+  color: var(--slate-500);
+  margin-top: 2px;
+}
+
+.m-tab-item {
+  flex: 1;
+  height: 100%;
+  border: none;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: #8e8e93;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.m-tab-item.active {
+  color: #007aff;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 228px;
+    padding: 18px 12px;
+  }
+
+  .content-viewport {
+    padding: 20px;
+  }
+}
+
 @media (max-width: 820px) {
   .detail-grid,
   .form-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  body,
+  .app-shell,
+  .main-area {
+    height: 100dvh;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .sidebar,
+  .topbar {
+    display: none !important;
+  }
+
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    flex-shrink: 0;
+    z-index: 30;
+  }
+
+  .mobile-feed-heading {
+    display: block;
+    margin-bottom: 14px;
+  }
+
+  .mobile-tab-bar {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(60px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 40;
+  }
+
+  .content-viewport {
+    padding: 14px 14px calc(76px + env(safe-area-inset-bottom));
+    overflow-x: hidden;
+  }
+
+  .feed-toolbar {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .search-box {
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .posts-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .post-card {
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+  }
+
+  .post-card:hover {
+    transform: none;
+  }
+
+  .post-image-wrap {
+    height: 220px;
+  }
+
+  .map-wrapper {
+    height: calc(100dvh - 150px);
+    border-radius: 14px;
+  }
+
+  .map-Controls-bar {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .radius-pills {
+    flex-wrap: wrap;
+  }
+
+  #desktop-map {
+    min-height: 280px;
+  }
+
+  .form-card {
+    padding: 18px 16px;
+    border-radius: 14px;
+  }
+
+  .profile-hero {
+    padding: 20px 16px;
+    border-radius: 14px;
+  }
+
+  .profile-big-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+
+  .bo-support-panel {
+    padding: 18px 16px;
+    border-radius: 14px;
+  }
+
+  .delegacia-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .modal-backdrop {
+    padding: 10px;
+  }
+
+  .modal-dialog {
+    max-height: 92dvh;
+    border-radius: 16px;
+  }
+
+  .modal-header {
+    padding: 14px 16px;
+  }
+
+  .modal-body {
+    padding: 16px;
+  }
+
+  .detail-photo {
+    height: 220px;
   }
 }
 

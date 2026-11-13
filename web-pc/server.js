@@ -67,7 +67,7 @@ const server = http.createServer((req, res) => {
           path: targetPath,
           method: req.method,
           headers,
-          timeout: 35000,
+          timeout: 60000,
         },
         (proxyRes) => {
           res.writeHead(proxyRes.statusCode || 500, {
@@ -100,7 +100,7 @@ const server = http.createServer((req, res) => {
 
   // Serve static files from web-pc/
   let cleanUrl = req.url.split("?")[0];
-  if (cleanUrl === "/" || cleanUrl === "") {
+  if (cleanUrl === "/" || cleanUrl === "" || cleanUrl === "/pc" || cleanUrl === "/mobile" || cleanUrl === "/celular") {
     cleanUrl = "/index.html";
   }
 
