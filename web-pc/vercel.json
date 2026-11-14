@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "rewrites": [
+    { "source": "/api/:path((?!proxy).*)", "destination": "/api/proxy?__path=/:path" },
+    { "source": "/mobile", "destination": "/index.html" },
+    { "source": "/celular", "destination": "/index.html" },
+    { "source": "/pc", "destination": "/index.html" }
+  ]
+}
