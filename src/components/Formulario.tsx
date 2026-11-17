@@ -219,27 +219,29 @@ export function Formulario() {
       const contentType = isPng ? "image/png" : "image/jpeg";
       const fileName = `${Date.now()}.${isPng ? "png" : "jpg"}`;
 
-      // 1. Tenta o upload no Supabase Storage
-      const { error } = await supabase.storage
-        .from("postagens")
-        .upload(fileName, arrayBuffer, {
-          contentType,
-          upsert: false,
-        });
-
-      if (!error) {
-        const { data: urlData } = supabase.storage
+      // 1. Tenta o upload no Supabase Storage (se configurado via variáveis de ambiente)
+      if (supabase) {
+        const { error } = await supabase.storage
           .from("postagens")
-          .getPublicUrl(fileName);
+          .upload(fileName, arrayBuffer, {
+            contentType,
+            upsert: false,
+          });
 
-        if (urlData?.publicUrl) {
-          return urlData.publicUrl;
+        if (!error) {
+          const { data: urlData } = supabase.storage
+            .from("postagens")
+            .getPublicUrl(fileName);
+
+          if (urlData?.publicUrl) {
+            return urlData.publicUrl;
+          }
+        } else {
+          console.warn(
+            "Supabase indisponível/pausado, ativando fallback de imagem:",
+            error.message
+          );
         }
-      } else {
-        console.warn(
-          "Supabase indisponível/pausado, ativando fallback de imagem:",
-          error.message
-        );
       }
     } catch (error: any) {
       console.warn(
