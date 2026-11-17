@@ -1068,7 +1068,7 @@ function initDesktopMap() {
   );
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors — CRA Desktop",
+    attribution: "&copy; OpenStreetMap contributors — CRA",
   }).addTo(leafletMap);
 
   leafletMarkersLayer = L.layerGroup().addTo(leafletMap);
